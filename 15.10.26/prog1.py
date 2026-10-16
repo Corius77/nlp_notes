@@ -66,8 +66,8 @@ base = {
     'Help': 'You can ask me about my name, age, studies, skills, hobbies or plans.',
 }
 
-prompts = [prompt for prompt in base.keys()]
-answers = [answer for answer in base.values()]
+prompts = [word_tokenize(prompt.lower()) for prompt in base.keys()]
+answers = [word_tokenize(answer.lower()) for answer in base.values()]
 
 # prompt_user = word_tokenize('What is your name?'.lower())
 
@@ -133,7 +133,7 @@ nltk.download('stopwords')
 
 english_stops = set(stopwords.words('english'))
 
-words = ["Can't", 'is', "contraction"]
+# words = ["Can't", 'is', "contraction"]
 # print([word for word in words if word not in english_stops])
 
 # NGRAMS
@@ -162,26 +162,47 @@ vectorizer = CountVectorizer()
 
 # Dodać do korpusu prompty i odpowiedzi
 
-corpus = corpus + prompts + answers
-print(corpus)
+corpus = corpus + [prompt for prompt in base.keys()] + [answer for answer in base.values()]
 
-x = vectorizer.fit_transform(corpus)
+V = vectorizer.fit_transform(corpus)
 
 # PODOBIEŃSTWO COSINUSOWE
 # x, y - wektory
 # cos(alfa) = <x, y> / ||x|| ||y|| = SIGMA_i(x_i y_i) / [ sqrt(SIGMA_i(x_i^2)) sqrt(SIGMA_i(y_i^2)) ]
 
-w1 = x.toarray()[1]
-w2 = x.toarray()[2]
-w3 = x.toarray()[3]
-
 from math import sqrt
-
-print(len(w1))
 
 def calc_cos_similiarity(w1, w2):
     cosinus = w1.dot(w2) / sqrt(w1.dot(w1 * w2.dot(w2)))
     return cosinus
 
-cosinus = calc_cos_similiarity(w1, w1)
-print(f"cos = {cosinus}")
+import numpy as np
+
+P = vectorizer.transform([prompt for prompt in base.keys()])
+
+def answer_with_cos():
+    prompt_user = word_tokenize(input('What is your question?\n').lower())
+    vec_prompt = vectorizer.transform(prompt_user)
+    # print(f"vec_prompt after transform {vec_prompt}")
+    vec_prompt = vec_prompt.toarray()[0]
+    # print(f"vec prompt after array {vec_prompt}")
+
+    similarieties = []
+    for i, p in enumerate(P.toarray()):
+        similiarity = calc_cos_similiarity(vec_prompt, p)
+        print(f"iteration = {i}, similiarity = {similiarity}")
+        similarieties.append(similiarity)
+
+    print(similarieties)
+    similarieties = np.array(similarieties) 
+    
+    prompt_index = similarieties.argmax()
+    print(prompt_index)
+    similiar_prompt = list(base.keys())[prompt_index]
+    answer = base[similiar_prompt]
+    print(answer)
+
+# v1 = V.toarray()[1]
+# v2 = V.toarray()[2]
+# print(calc_cos_similiarity(v1, v2))
+answer_with_cos()
