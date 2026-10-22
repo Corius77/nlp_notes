@@ -190,14 +190,14 @@ def answer_with_cos():
     similarieties = []
     for i, p in enumerate(P.toarray()):
         similiarity = calc_cos_similiarity(vec_prompt, p)
-        print(f"iteration = {i}, similiarity = {similiarity}")
+        # print(f"iteration = {i}, similiarity = {similiarity}")
         similarieties.append(similiarity)
 
-    print(similarieties)
+    # print(similarieties)
     similarieties = np.array(similarieties) 
     
     prompt_index = similarieties.argmax()
-    print(prompt_index)
+    # print(prompt_index)
     similiar_prompt = list(base.keys())[prompt_index]
     answer = base[similiar_prompt]
     print(answer)
